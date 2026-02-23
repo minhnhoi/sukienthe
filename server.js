@@ -6,10 +6,8 @@ const mongoose = require("mongoose");
 const app = express();
 const ROOT = process.cwd();
 
-// IMPORTANT: Render sẽ set PORT tự động
 const PORT = Number(process.env.PORT || process.env.APP_PORT || 4000);
 
-// MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
   console.error(
@@ -18,14 +16,12 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
-/** Bỏ dấu tiếng Việt để match cả "Thẻ", "Thẻ", "The", ... */
-function stripDiacritics(s) {
-  return String(s || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+/** normalize để split từ ổn định (gộp khoảng trắng) */
+function normalizeForSplit(input) {
+  return String(input || "").trim().replace(/\s+/g, " ");
 }
 
-/** Fallback normalize (giữ logic cũ nếu không có "Thẻ <số>") */
+/** fallback normalize (giữ logic cũ nếu không lấy được keyword theo rule) */
 function normalizeText(input) {
   return String(input || "")
     .trim()
@@ -35,22 +31,26 @@ function normalizeText(input) {
 
 /**
  * Key chống trùng:
- * - Nếu có "Thẻ <số>" => norm = "<số>" (chỉ số)
- * - Nếu không có => norm = normalizeText(full text)
+ * - Lấy "text nằm giữa dấu cách số 7 và 8"  => thực chất là token thứ 8 (index 7)
+ * - Nếu token đó có số => norm = số đó
+ * - Nếu không đủ token / không có số => fallback norm = normalizeText(full text)
  */
 function makeNormKey(text) {
-  const raw = String(text || "");
-  const noMark = stripDiacritics(raw).toLowerCase();
+  const s = normalizeForSplit(text);
+  if (!s) return "";
 
-  // Bắt "thẻ 63", "thẻ 63", "the 63", "the:63", "the-63", "the#63"
-  // (stripDiacritics("Thẻ") -> "The")
-  const m = noMark.match(/\bthe\b\s*[:\-#]?\s*(\d+)\b/);
-  if (m) return m[1];
+  const parts = s.split(" "); // sau normalizeForSplit thì chỉ còn 1 space giữa các từ
+  // token thứ 8 => index 7
+  if (parts.length >= 8) {
+    const token = parts[7]; // giữa dấu cách #7 và #8
+    const m = String(token).match(/\d+/); // chỉ lấy số (nếu token có dính dấu câu)
+    if (m) return m[0];
+    // nếu bạn muốn lấy nguyên token (không chỉ số) thì đổi thành: return token;
+  }
 
-  return normalizeText(raw);
+  return normalizeText(text);
 }
 
-// Schema giữ nguyên shape cho frontend + thêm norm để chống trùng theo số thẻ
 const EntrySchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true, index: true },
@@ -58,13 +58,10 @@ const EntrySchema = new mongoose.Schema(
     norm: { type: String, required: true },
     createdAt: { type: Number, required: true, index: true },
   },
-  {
-    versionKey: false,
-    timestamps: false,
-  }
+  { versionKey: false, timestamps: false }
 );
 
-// Unique index cho norm (chống trùng theo số thẻ)
+// Unique index cho norm (chống trùng theo keyword đã lọc)
 EntrySchema.index({ norm: 1 }, { unique: true });
 
 const Entry = mongoose.model("Entry", EntrySchema);
@@ -75,7 +72,6 @@ app.use(express.json({ limit: "200kb" }));
 
 app.get("/api/health", async (req, res) => {
   try {
-    // readyState: 1 = connected
     const connected = mongoose.connection.readyState === 1;
     res.json({ ok: true, db: connected });
   } catch (e) {
@@ -96,19 +92,19 @@ app.get("/api/entries", async (req, res) => {
       text: x.text,
       createdAt: Number(x.createdAt),
     }));
-
     res.json({ items });
   } catch (e) {
     res.status(500).json({ error: e.message || "Server error" });
   }
 });
 
-// add entry (server check exists)
+// add entry (GIỮ NGUYÊN LOGIC CHỐNG TRÙNG)
 app.post("/api/entries", async (req, res) => {
   try {
     const text = (req.body?.text || "").trim();
     if (!text) return res.status(400).json({ error: "Text is required" });
 
+    // CHỈ ĐỔI CHỖ NÀY: norm theo rule "giữa dấu cách #7 và #8"
     const norm = makeNormKey(text);
     if (!norm) return res.status(400).json({ error: "Text is required" });
 
