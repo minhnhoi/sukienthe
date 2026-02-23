@@ -6,12 +6,8 @@ const mongoose = require("mongoose");
 const app = express();
 const ROOT = process.cwd();
 
-// IMPORTANT: Render sẽ set PORT tự động
 const PORT = Number(process.env.PORT || process.env.APP_PORT || 4000);
 
-// MongoDB connection
-// Local: set MONGODB_URI in .env
-// Render: set MONGODB_URI in Render > Environment
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
   console.error(
@@ -20,21 +16,32 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
-// Schema giữ nguyên shape dữ liệu để frontend không cần đổi
-// - id: string (unique)
-// - text: string
-// - createdAt: number (ms)
+/**
+ * Chuẩn hoá để chống trùng:
+ * - trim
+ * - gộp mọi khoảng trắng (space/tab/newline) thành 1 space
+ * - lowercase
+ */
+function normalizeText(input) {
+  return String(input || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+}
+
 const EntrySchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true, index: true },
     text: { type: String, required: true },
+    // NEW: khóa chống trùng
+    norm: { type: String, required: true, index: true },
     createdAt: { type: Number, required: true, index: true },
   },
-  {
-    versionKey: false,
-    timestamps: false,
-  }
+  { versionKey: false, timestamps: false }
 );
+
+// Unique index cho norm (chống trùng ở DB-level)
+EntrySchema.index({ norm: 1 }, { unique: true });
 
 const Entry = mongoose.model("Entry", EntrySchema);
 
@@ -44,7 +51,6 @@ app.use(express.json({ limit: "200kb" }));
 
 app.get("/api/health", async (req, res) => {
   try {
-    // readyState: 1 = connected
     const connected = mongoose.connection.readyState === 1;
     res.json({ ok: true, db: connected });
   } catch (e) {
@@ -71,20 +77,40 @@ app.get("/api/entries", async (req, res) => {
   }
 });
 
-// add entry
+// add entry (ANTI-DUP)
 app.post("/api/entries", async (req, res) => {
   try {
     const text = (req.body?.text || "").trim();
     if (!text) return res.status(400).json({ error: "Text is required" });
 
+    const norm = normalizeText(text);
+    if (!norm) return res.status(400).json({ error: "Text is required" });
+
+    // 1) Check trùng trước
+    const existed = await Entry.findOne({ norm }, { _id: 0 }).lean();
+    if (existed) {
+      return res.json({ exists: true, entry: existed });
+    }
+
+    // 2) Tạo mới
     const entry = {
       id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
       text,
+      norm,
       createdAt: Date.now(),
     };
 
-    await Entry.create(entry);
-    res.json({ entry });
+    try {
+      await Entry.create(entry);
+      return res.json({ exists: false, entry });
+    } catch (err) {
+      // 3) Chặn race-condition bằng unique index
+      if (err && (err.code === 11000 || String(err.message || "").includes("E11000"))) {
+        const existed2 = await Entry.findOne({ norm }, { _id: 0 }).lean();
+        return res.json({ exists: true, entry: existed2 || null });
+      }
+      throw err;
+    }
   } catch (e) {
     res.status(500).json({ error: e.message || "Server error" });
   }
