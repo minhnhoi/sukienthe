@@ -6,8 +6,10 @@ const mongoose = require("mongoose");
 const app = express();
 const ROOT = process.cwd();
 
+// IMPORTANT: Render sẽ set PORT tự động
 const PORT = Number(process.env.PORT || process.env.APP_PORT || 4000);
 
+// MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
   console.error(
@@ -16,14 +18,14 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
-/** Bỏ dấu tiếng Việt để match "Thẻ", "Thẻ", "The", ... */
+/** Bỏ dấu tiếng Việt để match cả "Thẻ", "Thẻ", "The", ... */
 function stripDiacritics(s) {
   return String(s || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-/** Chuẩn hoá text fallback (trim + gộp khoảng trắng + lowercase) */
+/** Fallback normalize (giữ logic cũ nếu không có "Thẻ <số>") */
 function normalizeText(input) {
   return String(input || "")
     .trim()
@@ -33,35 +35,36 @@ function normalizeText(input) {
 
 /**
  * Key chống trùng:
- * - Nếu có "Thẻ <số>" (hoặc The/Thẻ) => norm = "<số>"
+ * - Nếu có "Thẻ <số>" => norm = "<số>" (chỉ số)
  * - Nếu không có => norm = normalizeText(full text)
  */
 function makeNormKey(text) {
   const raw = String(text || "");
   const noMark = stripDiacritics(raw).toLowerCase();
 
-  // bắt "the 63", "the:63", "thẻ  63", "the-63", ...
-  const m = noMark.match(/\bthe\b\s*[:\-]?\s*(\d+)\b/);
+  // Bắt "thẻ 63", "thẻ 63", "the 63", "the:63", "the-63", "the#63"
+  // (stripDiacritics("Thẻ") -> "The")
+  const m = noMark.match(/\bthe\b\s*[:\-#]?\s*(\d+)\b/);
   if (m) return m[1];
 
   return normalizeText(raw);
 }
 
+// Schema giữ nguyên shape cho frontend + thêm norm để chống trùng theo số thẻ
 const EntrySchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true, index: true },
     text: { type: String, required: true },
-
-    // norm là khóa chống trùng (theo số thẻ hoặc fallback theo text)
-    // (KHÔNG để index:true ở đây để tránh duplicate index warning)
     norm: { type: String, required: true },
-
     createdAt: { type: Number, required: true, index: true },
   },
-  { versionKey: false, timestamps: false }
+  {
+    versionKey: false,
+    timestamps: false,
+  }
 );
 
-// Unique index cho norm (chống trùng ở DB-level)
+// Unique index cho norm (chống trùng theo số thẻ)
 EntrySchema.index({ norm: 1 }, { unique: true });
 
 const Entry = mongoose.model("Entry", EntrySchema);
@@ -72,6 +75,7 @@ app.use(express.json({ limit: "200kb" }));
 
 app.get("/api/health", async (req, res) => {
   try {
+    // readyState: 1 = connected
     const connected = mongoose.connection.readyState === 1;
     res.json({ ok: true, db: connected });
   } catch (e) {
@@ -99,7 +103,7 @@ app.get("/api/entries", async (req, res) => {
   }
 });
 
-// add entry (ANTI-DUP theo số sau chữ "Thẻ")
+// add entry (server check exists)
 app.post("/api/entries", async (req, res) => {
   try {
     const text = (req.body?.text || "").trim();
@@ -127,7 +131,10 @@ app.post("/api/entries", async (req, res) => {
       return res.json({ exists: false, entry });
     } catch (err) {
       // 3) Chặn race-condition bằng unique index
-      if (err && (err.code === 11000 || String(err.message || "").includes("E11000"))) {
+      if (
+        err &&
+        (err.code === 11000 || String(err.message || "").includes("E11000"))
+      ) {
         const existed2 = await Entry.findOne({ norm }, { _id: 0 }).lean();
         return res.json({ exists: true, entry: existed2 || null });
       }
