@@ -16,12 +16,14 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
-/**
- * Chuẩn hoá để chống trùng:
- * - trim
- * - gộp mọi khoảng trắng (space/tab/newline) thành 1 space
- * - lowercase
- */
+/** Bỏ dấu tiếng Việt để match "Thẻ", "Thẻ", "The", ... */
+function stripDiacritics(s) {
+  return String(s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/** Chuẩn hoá text fallback (trim + gộp khoảng trắng + lowercase) */
 function normalizeText(input) {
   return String(input || "")
     .trim()
@@ -29,12 +31,31 @@ function normalizeText(input) {
     .toLowerCase();
 }
 
+/**
+ * Key chống trùng:
+ * - Nếu có "Thẻ <số>" (hoặc The/Thẻ) => norm = "<số>"
+ * - Nếu không có => norm = normalizeText(full text)
+ */
+function makeNormKey(text) {
+  const raw = String(text || "");
+  const noMark = stripDiacritics(raw).toLowerCase();
+
+  // bắt "the 63", "the:63", "thẻ  63", "the-63", ...
+  const m = noMark.match(/\bthe\b\s*[:\-]?\s*(\d+)\b/);
+  if (m) return m[1];
+
+  return normalizeText(raw);
+}
+
 const EntrySchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true, index: true },
     text: { type: String, required: true },
-    // NEW: khóa chống trùng
-    norm: { type: String, required: true, index: true },
+
+    // norm là khóa chống trùng (theo số thẻ hoặc fallback theo text)
+    // (KHÔNG để index:true ở đây để tránh duplicate index warning)
+    norm: { type: String, required: true },
+
     createdAt: { type: Number, required: true, index: true },
   },
   { versionKey: false, timestamps: false }
@@ -71,19 +92,20 @@ app.get("/api/entries", async (req, res) => {
       text: x.text,
       createdAt: Number(x.createdAt),
     }));
+
     res.json({ items });
   } catch (e) {
     res.status(500).json({ error: e.message || "Server error" });
   }
 });
 
-// add entry (ANTI-DUP)
+// add entry (ANTI-DUP theo số sau chữ "Thẻ")
 app.post("/api/entries", async (req, res) => {
   try {
     const text = (req.body?.text || "").trim();
     if (!text) return res.status(400).json({ error: "Text is required" });
 
-    const norm = normalizeText(text);
+    const norm = makeNormKey(text);
     if (!norm) return res.status(400).json({ error: "Text is required" });
 
     // 1) Check trùng trước
