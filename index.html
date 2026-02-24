@@ -2,292 +2,308 @@
 <html lang="vi">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Lưu Mã Thẻ Sự Kiện</title>
-    <style>
-        :root {
-            font-family: system-ui, Arial, sans-serif;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lưu Mã Thẻ Sự Kiện</title>
+  <style>
+    :root {
+      font-family: system-ui, Arial, sans-serif;
+    }
 
-        body {
-            margin: 0;
-            background: #f6f7fb;
-        }
+    body {
+      margin: 0;
+      background: #f6f7fb;
+    }
 
-        .wrap {
-            max-width: 980px;
-            margin: 24px auto;
-            padding: 0 16px;
-        }
+    .wrap {
+      max-width: 980px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
 
-        h1 {
-            margin: 0 0 16px;
-        }
+    h1 {
+      margin: 0 0 16px;
+    }
 
-        h2 {
-            margin: 0;
-        }
+    h2 {
+      margin: 0;
+    }
 
-        .card {
-            background: #fff;
-            border: 1px solid #e6e8ef;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
+    .card {
+      background: #fff;
+      border: 1px solid #e6e8ef;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
 
-        .label {
-            display: block;
-            margin: 8px 0 6px;
-            font-weight: 600;
-        }
+    .label {
+      display: block;
+      margin: 8px 0 6px;
+      font-weight: 600;
+    }
 
-        textarea {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #d8dbe6;
-            resize: vertical;
-        }
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #d8dbe6;
+      resize: vertical;
+    }
 
-        input[type="text"] {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #d8dbe6;
-        }
+    input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #d8dbe6;
+    }
 
-        .row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
 
-        .space {
-            justify-content: space-between;
-        }
+    .space {
+      justify-content: space-between;
+    }
 
-        .btn {
-            border: 0;
-            padding: 10px 14px;
-            border-radius: 10px;
-            background: #2f6fed;
-            color: #fff;
-            cursor: pointer;
-        }
+    .btn {
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #2f6fed;
+      color: #fff;
+      cursor: pointer;
+    }
 
-        .btn.secondary {
-            background: #e9eefc;
-            color: #2f6fed;
-        }
+    .btn.secondary {
+      background: #e9eefc;
+      color: #2f6fed;
+    }
 
-        .btn.danger {
-            background: #ef4444;
-            color: #fff;
-        }
+    .btn.danger {
+      background: #ef4444;
+      color: #fff;
+    }
 
-        .btn:disabled {
-            opacity: .6;
-            cursor: not-allowed;
-        }
+    .btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
 
-        .muted {
-            color: #6b7280;
-            font-size: 14px;
-        }
+    .muted {
+      color: #6b7280;
+      font-size: 14px;
+    }
 
-        .list {
-            display: grid;
-            gap: 12px;
-        }
+    .list {
+      display: grid;
+      gap: 12px;
+    }
 
-        .item {
-            border: 1px solid #e6e8ef;
-            border-radius: 12px;
-            padding: 12px;
-            background: #fff;
-        }
+    .item {
+      border: 1px solid #e6e8ef;
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
 
-        .code {
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            padding: 8px;
-            border-radius: 10px;
-            white-space: pre-wrap;
-        }
+    .code {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      padding: 8px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
 
-        .meta {
-            font-size: 12px;
-            color: #6b7280;
-        }
+    .meta {
+      font-size: 12px;
+      color: #6b7280;
+    }
 
-        .actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
 
-        .pill {
-            font-size: 12px;
-            padding: 4px 8px;
-            border-radius: 999px;
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            color: #374151;
-        }
+    .pill {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      color: #374151;
+    }
 
-        .filterWrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .filterWrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .filterAffix {
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid #d8dbe6;
-            background: #f3f4f6;
-            color: #374151;
-            white-space: nowrap;
-        }
+    .filterAffix {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #d8dbe6;
+      background: #f3f4f6;
+      color: #374151;
+      white-space: nowrap;
+    }
 
-        #filterNumber {
-            flex: 1;
-        }
-    </style>
+    #filterNumber {
+      flex: 1;
+    }
+  </style>
 </head>
 
 <body>
-    <main class="wrap">
-        <h1>Lưu Mã Thẻ Sự Kiện Liên Quân</h1>
+  <main class="wrap">
+    <h1>Lưu Mã Thẻ Sự Kiện Liên Quân</h1>
 
-        <!-- ADD -->
-        <section class="card">
-            <label class="label">Nhập text</label>
-            <textarea id="text" rows="5" placeholder="Nhập nội dung..."></textarea>
+    <!-- ADD -->
+    <section class="card">
+      <label class="label">Nhập text</label>
+      <textarea id="text" rows="5" placeholder="Nhập nội dung..."></textarea>
 
-            <div class="row">
-                <button id="saveBtn" class="btn" type="button">Lưu</button>
-                <button id="copyInputBtn" class="btn secondary" type="button">Copy text đang nhập</button>
-                <span id="status" class="muted"></span>
-            </div>
-            <div class="muted">* Server sẽ tự check trùng (không phân biệt hoa thường, gộp khoảng trắng).</div>
-        </section>
+      <div class="row">
+        <button id="saveBtn" class="btn" type="button">Lưu</button>
+        <button id="copyInputBtn" class="btn secondary" type="button">Copy text đang nhập</button>
+        <span id="status" class="muted"></span>
+      </div>
+      <div class="muted">* Server sẽ tự check trùng (không phân biệt hoa thường, gộp khoảng trắng).</div>
+    </section>
 
-        <!-- LIST + FILTER -->
-        <section class="card">
-            <div class="row space">
-                <h2>Danh sách đã lưu</h2>
-                <div class="row" style="margin-top:0">
-                    <span id="countPill" class="pill">0 mục</span>
-                    <button id="reloadBtn" class="btn secondary" type="button">Tải lại</button>
-                </div>
-            </div>
+    <!-- LIST + FILTER -->
+    <section class="card">
+      <div class="row space">
+        <h2>Danh sách đã lưu</h2>
+        <div class="row" style="margin-top:0">
+          <span id="countPill" class="pill">0 mục</span>
+          <button id="reloadBtn" class="btn secondary" type="button">Tải lại</button>
+        </div>
+      </div>
 
-            <label class="label">Lọc theo từ khóa</label>
+      <label class="label">Lọc theo từ khóa</label>
 
-            <div class="filterWrap">
-                <span class="filterAffix">Thẻ</span>
-                <input id="filterNumber" type="text" inputmode="numeric" placeholder="Nhập số (VD: 63)"
-                    autocomplete="off" />
-                <span class="filterAffix">nhé!</span>
-            </div>
-            <div class="row">
-                <button id="clearFilterBtn" class="btn secondary" type="button">Xóa lọc</button>
-                <span id="filterInfo" class="muted"></span>
-            </div>
+      <div class="filterWrap">
+        <span class="filterAffix">Thẻ</span>
+        <input id="filterNumber" type="text" inputmode="numeric" placeholder="Nhập số (VD: 63)" autocomplete="off" />
+        <span class="filterAffix">nhé!</span>
+      </div>
 
-            <div id="list" class="list muted">Đang tải...</div>
-        </section>
-    </main>
+      <div class="row">
+        <button id="clearFilterBtn" class="btn secondary" type="button">Xóa lọc</button>
+        <span id="filterInfo" class="muted"></span>
+      </div>
 
-    <script>
-        const $ = (s) => document.querySelector(s);
+      <div id="list" class="list muted">Đang tải...</div>
+    </section>
+  </main>
 
-        const textEl = $("#text");
-        const saveBtn = $("#saveBtn");
-        const copyInputBtn = $("#copyInputBtn");
-        const statusEl = $("#status");
+  <script>
+    const $ = (s) => document.querySelector(s);
 
-        const reloadBtn = $("#reloadBtn");
-        const listEl = $("#list");
+    const textEl = $("#text");
+    const saveBtn = $("#saveBtn");
+    const copyInputBtn = $("#copyInputBtn");
+    const statusEl = $("#status");
 
-        const filterInput = $("#filterInput");
-        const clearFilterBtn = $("#clearFilterBtn");
-        const filterInfo = $("#filterInfo");
-        const countPill = $("#countPill");
+    const reloadBtn = $("#reloadBtn");
+    const listEl = $("#list");
 
-        let allItems = [];
+    // ✅ FIX: đúng id filterNumber
+    const filterNumber = $("#filterNumber");
+    const clearFilterBtn = $("#clearFilterBtn");
+    const filterInfo = $("#filterInfo");
+    const countPill = $("#countPill");
 
-        async function copyToClipboard(value) {
-            try {
-                await navigator.clipboard.writeText(value);
-                return true;
-            } catch {
-                const ta = document.createElement("textarea");
-                ta.value = value;
-                document.body.appendChild(ta);
-                ta.select();
-                const ok = document.execCommand("copy");
-                document.body.removeChild(ta);
-                return ok;
-            }
-        }
+    let allItems = [];
 
-        function flash(msg, ms = 1500) {
-            statusEl.textContent = msg;
-            if (ms) setTimeout(() => (statusEl.textContent = ""), ms);
-        }
+    async function copyToClipboard(value) {
+      try {
+        await navigator.clipboard.writeText(value);
+        return true;
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = value;
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      }
+    }
 
-        function escapeHtml(s) {
-            return (s ?? "")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
+    function flash(msg, ms = 1500) {
+      statusEl.textContent = msg;
+      if (ms) setTimeout(() => (statusEl.textContent = ""), ms);
+    }
 
-        function applyFilter() {
-            const num = (filterNumber.value || "").trim();
+    function escapeHtml(s) {
+      return (s ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
 
-            // chỉ cho nhập số (nếu dán chữ vào thì tự bỏ)
-            const onlyNum = num.replace(/\D+/g, "");
-            if (onlyNum !== num) filterNumber.value = onlyNum;
+    // ✅ Rule: lấy số nằm giữa dấu cách thứ 7 và 8 (token thứ 8)
+    function normalizeForSplit(input) {
+      return String(input || "").trim().replace(/\s+/g, " ");
+    }
 
-            const q = onlyNum ? `thẻ ${onlyNum} nhé!` : "";
-            const filtered = q
-                ? allItems.filter((x) => String(x.text || "").toLowerCase().includes(q))
-                : allItems;
+    function extractKeyFromText(text) {
+      const s = normalizeForSplit(text);
+      const parts = s.split(" ");
+      if (parts.length >= 8) {
+        const token = parts[7]; // giữa dấu cách #7 và #8
+        const m = String(token).match(/\d+/); // lấy số nếu token dính dấu câu
+        return m ? m[0] : "";
+      }
+      return "";
+    }
 
-            render(filtered);
+    function applyFilter() {
+      const raw = (filterNumber.value || "").trim();
 
-            if (!q) {
-                filterInfo.textContent = "";
-            } else {
-                filterInfo.textContent = `Đang lọc: "${q}" • ${filtered.length}/${allItems.length} mục`;
-            }
-        }
+      // chỉ cho nhập số
+      const onlyNum = raw.replace(/\D+/g, "");
+      if (onlyNum !== raw) filterNumber.value = onlyNum;
 
-        function render(items) {
-            countPill.textContent = `${items.length} mục`;
+      const filtered = onlyNum
+        ? allItems.filter((x) => extractKeyFromText(x.text) === onlyNum)
+        : allItems;
 
-            if (!items.length) {
-                listEl.classList.add("muted");
-                listEl.innerHTML = allItems.length ? "Không có mục nào khớp bộ lọc." : "Chưa có dữ liệu.";
-                return;
-            }
+      render(filtered);
 
-            listEl.classList.remove("muted");
-            listEl.innerHTML = items.map((it) => {
-                const created = new Date(it.createdAt).toLocaleString();
-                return `
+      if (!onlyNum) {
+        filterInfo.textContent = "";
+      } else {
+        filterInfo.textContent = `Đang lọc: "Thẻ ${onlyNum} nhé!" • ${filtered.length}/${allItems.length} mục`;
+      }
+    }
+
+    function render(items) {
+      countPill.textContent = `${items.length} mục`;
+
+      if (!items.length) {
+        listEl.classList.add("muted");
+        listEl.innerHTML = allItems.length ? "Không có mục nào khớp bộ lọc." : "Chưa có dữ liệu.";
+        return;
+      }
+
+      listEl.classList.remove("muted");
+      listEl.innerHTML = items.map((it) => {
+        const created = new Date(it.createdAt).toLocaleString();
+        return `
           <div class="item">
             <div class="meta">${created} • ID: ${escapeHtml(it.id)}</div>
             <div class="code">${escapeHtml(it.text)}</div>
@@ -297,113 +313,113 @@
             </div>
           </div>
         `;
-            }).join("");
+      }).join("");
 
-            // Copy
-            listEl.querySelectorAll("[data-copy]").forEach((btn) => {
-                btn.addEventListener("click", async () => {
-                    const v = btn.getAttribute("data-copy") || "";
-                    const ok = await copyToClipboard(v);
-                    const old = btn.textContent;
-                    btn.textContent = ok ? "Đã copy!" : "Copy lỗi";
-                    setTimeout(() => (btn.textContent = old), 1200);
-                });
-            });
+      // Copy
+      listEl.querySelectorAll("[data-copy]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const v = btn.getAttribute("data-copy") || "";
+          const ok = await copyToClipboard(v);
+          const old = btn.textContent;
+          btn.textContent = ok ? "Đã copy!" : "Copy lỗi";
+          setTimeout(() => (btn.textContent = old), 1200);
+        });
+      });
 
-            // Delete
-            listEl.querySelectorAll("[data-del]").forEach((btn) => {
-                btn.addEventListener("click", async () => {
-                    const id = btn.getAttribute("data-del");
-                    if (!id) return;
-                    if (!confirm("Xóa mục này nhé?")) return;
+      // Delete
+      listEl.querySelectorAll("[data-del]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-del");
+          if (!id) return;
+          if (!confirm("Xóa mục này nhé?")) return;
 
-                    btn.disabled = true;
-                    const old = btn.textContent;
-                    btn.textContent = "Đang xóa...";
+          btn.disabled = true;
+          const old = btn.textContent;
+          btn.textContent = "Đang xóa...";
 
-                    try {
-                        const res = await fetch(`/api/entries/${encodeURIComponent(id)}`, { method: "DELETE" });
-                        const data = await res.json();
-                        if (!res.ok) throw new Error(data?.error || "Xóa thất bại");
-                        flash("Đã xóa!");
-                        await loadList();
-                    } catch (e) {
-                        flash(e.message, 2200);
-                    } finally {
-                        btn.disabled = false;
-                        btn.textContent = old;
-                    }
-                });
-            });
-        }
-
-        async function loadList() {
-            listEl.classList.add("muted");
-            listEl.innerHTML = "Đang tải...";
-            const res = await fetch("/api/entries");
+          try {
+            const res = await fetch(`/api/entries/${encodeURIComponent(id)}`, { method: "DELETE" });
             const data = await res.json();
-            allItems = data.items || [];
-            applyFilter();
+            if (!res.ok) throw new Error(data?.error || "Xóa thất bại");
+            flash("Đã xóa!");
+            await loadList();
+          } catch (e) {
+            flash(e.message, 2200);
+          } finally {
+            btn.disabled = false;
+            btn.textContent = old;
+          }
+        });
+      });
+    }
+
+    async function loadList() {
+      listEl.classList.add("muted");
+      listEl.innerHTML = "Đang tải...";
+      const res = await fetch("/api/entries");
+      const data = await res.json();
+      allItems = data.items || [];
+      applyFilter();
+    }
+
+    // Events
+    reloadBtn.addEventListener("click", () => loadList().catch(() => {
+      listEl.classList.add("muted");
+      listEl.innerHTML = "Không tải được dữ liệu. Kiểm tra backend.";
+    }));
+
+    filterNumber.addEventListener("input", applyFilter);
+
+    clearFilterBtn.addEventListener("click", () => {
+      filterNumber.value = "";
+      applyFilter();
+      flash("Đã xóa lọc.", 1000);
+    });
+
+    copyInputBtn.addEventListener("click", async () => {
+      const text = (textEl.value || "").trim();
+      if (!text) return flash("Không có gì để copy.");
+      const ok = await copyToClipboard(text);
+      flash(ok ? "Đã copy!" : "Copy lỗi.");
+    });
+
+    // Save (server check exists)
+    saveBtn.addEventListener("click", async () => {
+      saveBtn.disabled = true;
+      try {
+        const text = (textEl.value || "").trim();
+        if (!text) throw new Error("Vui lòng nhập text.");
+
+        const res = await fetch("/api/entries", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || "Lưu thất bại");
+
+        if (data.exists) {
+          flash("Text này đã tồn tại rồi (không lưu thêm).", 2000);
+        } else {
+          flash("Đã lưu!", 1200);
+          textEl.value = "";
         }
 
-        // Events
-        reloadBtn.addEventListener("click", () => loadList().catch(() => {
-            listEl.classList.add("muted");
-            listEl.innerHTML = "Không tải được dữ liệu. Kiểm tra backend.";
-        }));
+        await loadList();
+      } catch (e) {
+        flash(e.message, 2200);
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
 
-        filterNumber.addEventListener("input", applyFilter);
-
-        clearFilterBtn.addEventListener("click", () => {
-            filterNumber.value = "";
-            applyFilter();
-            flash("Đã xóa lọc.", 1000);
-        });
-
-        copyInputBtn.addEventListener("click", async () => {
-            const text = (textEl.value || "").trim();
-            if (!text) return flash("Không có gì để copy.");
-            const ok = await copyToClipboard(text);
-            flash(ok ? "Đã copy!" : "Copy lỗi.");
-        });
-
-        // Save (server check exists)
-        saveBtn.addEventListener("click", async () => {
-            saveBtn.disabled = true;
-            try {
-                const text = (textEl.value || "").trim();
-                if (!text) throw new Error("Vui lòng nhập text.");
-
-                const res = await fetch("/api/entries", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ text })
-                });
-
-                const data = await res.json();
-                if (!res.ok) throw new Error(data?.error || "Lưu thất bại");
-
-                if (data.exists) {
-                    flash("Text này đã tồn tại rồi (không lưu thêm).", 2000);
-                } else {
-                    flash("Đã lưu!", 1200);
-                    textEl.value = "";
-                }
-
-                await loadList();
-            } catch (e) {
-                flash(e.message, 2200);
-            } finally {
-                saveBtn.disabled = false;
-            }
-        });
-
-        // init
-        loadList().catch(() => {
-            listEl.classList.add("muted");
-            listEl.innerHTML = "Không kết nối được server. Hãy chạy backend trước.";
-        });
-    </script>
+    // init
+    loadList().catch(() => {
+      listEl.classList.add("muted");
+      listEl.innerHTML = "Không kết nối được server. Hãy chạy backend trước.";
+    });
+  </script>
 </body>
 
 </html>
