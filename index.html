@@ -6,28 +6,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Lưu Mã Thẻ Sự Kiện</title>
   <style>
-    :root {
-      font-family: system-ui, Arial, sans-serif;
-    }
-
-    body {
-      margin: 0;
-      background: #f6f7fb;
-    }
-
-    .wrap {
-      max-width: 980px;
-      margin: 24px auto;
-      padding: 0 16px;
-    }
-
-    h1 {
-      margin: 0 0 16px;
-    }
-
-    h2 {
-      margin: 0;
-    }
+    :root { font-family: system-ui, Arial, sans-serif; }
+    body { margin: 0; background: #f6f7fb; }
+    .wrap { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+    h1 { margin: 0 0 16px; }
+    h2 { margin: 0; }
 
     .card {
       background: #fff;
@@ -37,11 +20,7 @@
       margin-bottom: 16px;
     }
 
-    .label {
-      display: block;
-      margin: 8px 0 6px;
-      font-weight: 600;
-    }
+    .label { display: block; margin: 8px 0 6px; font-weight: 600; }
 
     textarea {
       width: 100%;
@@ -68,9 +47,7 @@
       flex-wrap: wrap;
     }
 
-    .space {
-      justify-content: space-between;
-    }
+    .space { justify-content: space-between; }
 
     .btn {
       border: 0;
@@ -81,30 +58,14 @@
       cursor: pointer;
     }
 
-    .btn.secondary {
-      background: #e9eefc;
-      color: #2f6fed;
-    }
+    .btn.secondary { background: #e9eefc; color: #2f6fed; }
+    .btn.danger { background: #ef4444; color: #fff; }
 
-    .btn.danger {
-      background: #ef4444;
-      color: #fff;
-    }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
 
-    .btn:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
+    .muted { color: #6b7280; font-size: 14px; }
 
-    .muted {
-      color: #6b7280;
-      font-size: 14px;
-    }
-
-    .list {
-      display: grid;
-      gap: 12px;
-    }
+    .list { display: grid; gap: 12px; }
 
     .item {
       border: 1px solid #e6e8ef;
@@ -121,10 +82,7 @@
       white-space: pre-wrap;
     }
 
-    .meta {
-      font-size: 12px;
-      color: #6b7280;
-    }
+    .meta { font-size: 12px; color: #6b7280; }
 
     .actions {
       display: flex;
@@ -142,12 +100,7 @@
       color: #374151;
     }
 
-    .filterWrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    .filterWrap { display: flex; align-items: center; gap: 10px; }
     .filterAffix {
       padding: 10px 12px;
       border-radius: 10px;
@@ -156,10 +109,7 @@
       color: #374151;
       white-space: nowrap;
     }
-
-    #filterNumber {
-      flex: 1;
-    }
+    #filterNumber { flex: 1; }
   </style>
 </head>
 
@@ -218,7 +168,6 @@
     const reloadBtn = $("#reloadBtn");
     const listEl = $("#list");
 
-    // ✅ FIX: đúng id filterNumber
     const filterNumber = $("#filterNumber");
     const clearFilterBtn = $("#clearFilterBtn");
     const filterInfo = $("#filterInfo");
@@ -255,7 +204,7 @@
         .replaceAll("'", "&#039;");
     }
 
-    // ✅ Rule: lấy số nằm giữa dấu cách thứ 7 và 8 (token thứ 8)
+    // ✅ Lấy số nằm giữa dấu cách thứ 7 và 8 (token thứ 8)
     function normalizeForSplit(input) {
       return String(input || "").trim().replace(/\s+/g, " ");
     }
@@ -264,17 +213,21 @@
       const s = normalizeForSplit(text);
       const parts = s.split(" ");
       if (parts.length >= 8) {
-        const token = parts[7]; // giữa dấu cách #7 và #8
-        const m = String(token).match(/\d+/); // lấy số nếu token dính dấu câu
+        const token = parts[7];
+        const m = String(token).match(/\d+/);
         return m ? m[0] : "";
       }
       return "";
     }
 
+    // ✅ Lấy mã DICHUA_xxx để copy
+    function extractDichuaCode(text) {
+      const m = String(text || "").match(/\bDICHUA_[A-Za-z0-9]+\b/);
+      return m ? m[0] : "";
+    }
+
     function applyFilter() {
       const raw = (filterNumber.value || "").trim();
-
-      // chỉ cho nhập số
       const onlyNum = raw.replace(/\D+/g, "");
       if (onlyNum !== raw) filterNumber.value = onlyNum;
 
@@ -303,22 +256,29 @@
       listEl.classList.remove("muted");
       listEl.innerHTML = items.map((it) => {
         const created = new Date(it.createdAt).toLocaleString();
+        const codeOnly = extractDichuaCode(it.text);
         return `
           <div class="item">
             <div class="meta">${created} • ID: ${escapeHtml(it.id)}</div>
             <div class="code">${escapeHtml(it.text)}</div>
             <div class="actions">
-              <button class="btn secondary" data-copy="${escapeHtml(it.text)}">Copy</button>
+              <button class="btn secondary" data-copy="${escapeHtml(codeOnly)}">Copy mã</button>
               <button class="btn danger" data-del="${escapeHtml(it.id)}">Xóa</button>
             </div>
           </div>
         `;
       }).join("");
 
-      // Copy
+      // Copy (chỉ copy mã DICHUA_...)
       listEl.querySelectorAll("[data-copy]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const v = btn.getAttribute("data-copy") || "";
+          if (!v) {
+            const old = btn.textContent;
+            btn.textContent = "Không có mã";
+            setTimeout(() => (btn.textContent = old), 1200);
+            return;
+          }
           const ok = await copyToClipboard(v);
           const old = btn.textContent;
           btn.textContent = ok ? "Đã copy!" : "Copy lỗi";
