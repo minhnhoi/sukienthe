@@ -16,12 +16,13 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
-/** normalize để split từ ổn định (gộp khoảng trắng) */
-function normalizeForSplit(input) {
-  return String(input || "").trim().replace(/\s+/g, " ");
-}
-
-/** fallback normalize (giữ logic cũ nếu không lấy được keyword theo rule) */
+/**
+ * ✅ CHỐNG TRÙNG THEO TOÀN BỘ CHUỖI
+ * - trim
+ * - gộp mọi khoảng trắng thành 1 space
+ * - lowercase
+ * => Chỉ khi cả chuỗi (sau normalize) giống nhau mới báo trùng
+ */
 function normalizeText(input) {
   return String(input || "")
     .trim()
@@ -29,39 +30,20 @@ function normalizeText(input) {
     .toLowerCase();
 }
 
-/**
- * Key chống trùng:
- * - Lấy "text nằm giữa dấu cách số 7 và 8"  => thực chất là token thứ 8 (index 7)
- * - Nếu token đó có số => norm = số đó
- * - Nếu không đủ token / không có số => fallback norm = normalizeText(full text)
- */
-function makeNormKey(text) {
-  const s = normalizeForSplit(text);
-  if (!s) return "";
-
-  const parts = s.split(" "); // sau normalizeForSplit thì chỉ còn 1 space giữa các từ
-  // token thứ 8 => index 7
-  if (parts.length >= 8) {
-    const token = parts[7]; // giữa dấu cách #7 và #8
-    const m = String(token).match(/\d+/); // chỉ lấy số (nếu token có dính dấu câu)
-    if (m) return m[0];
-    // nếu bạn muốn lấy nguyên token (không chỉ số) thì đổi thành: return token;
-  }
-
-  return normalizeText(text);
-}
-
 const EntrySchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true, index: true },
     text: { type: String, required: true },
+
+    // norm = full text đã normalize (dùng để check trùng)
     norm: { type: String, required: true },
+
     createdAt: { type: Number, required: true, index: true },
   },
   { versionKey: false, timestamps: false }
 );
 
-// Unique index cho norm (chống trùng theo keyword đã lọc)
+// Unique index cho norm (chống trùng theo full text)
 EntrySchema.index({ norm: 1 }, { unique: true });
 
 const Entry = mongoose.model("Entry", EntrySchema);
@@ -92,21 +74,21 @@ app.get("/api/entries", async (req, res) => {
       text: x.text,
       createdAt: Number(x.createdAt),
     }));
+
     res.json({ items });
   } catch (e) {
     res.status(500).json({ error: e.message || "Server error" });
   }
 });
 
-// add entry (GIỮ NGUYÊN LOGIC CHỐNG TRÙNG)
+// add entry (ANTI-DUP theo full text)
 app.post("/api/entries", async (req, res) => {
   try {
     const text = (req.body?.text || "").trim();
     if (!text) return res.status(400).json({ error: "Text is required" });
 
-    // CHỈ ĐỔI CHỖ NÀY: norm theo rule "giữa dấu cách #7 và #8"
-    const norm = makeNormKey(text);
-    if (!norm) return res.status(400).json({ error: "Text is required" });
+    // ✅ CHỐNG TRÙNG THEO TOÀN BỘ CHUỖI
+    const norm = normalizeText(text);
 
     // 1) Check trùng trước
     const existed = await Entry.findOne({ norm }, { _id: 0 }).lean();
@@ -127,10 +109,7 @@ app.post("/api/entries", async (req, res) => {
       return res.json({ exists: false, entry });
     } catch (err) {
       // 3) Chặn race-condition bằng unique index
-      if (
-        err &&
-        (err.code === 11000 || String(err.message || "").includes("E11000"))
-      ) {
+      if (err && (err.code === 11000 || String(err.message || "").includes("E11000"))) {
         const existed2 = await Entry.findOne({ norm }, { _id: 0 }).lean();
         return res.json({ exists: true, entry: existed2 || null });
       }
