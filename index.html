@@ -6,37 +6,189 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Lưu Mã Thẻ Sự Kiện</title>
   <style>
-    :root { font-family: system-ui, Arial, sans-serif; }
-    body { margin: 0; background: #f6f7fb; }
-    .wrap { max-width: 980px; margin: 24px auto; padding: 0 16px; }
-    h1 { margin: 0 0 16px; }
-    h2 { margin: 0; }
+    :root {
+      --bg0: #070a12;
+      --bg1: #0b1020;
+      --glass: rgba(255, 255, 255, .06);
+      --glass2: rgba(255, 255, 255, .10);
+      --border: rgba(255, 255, 255, .14);
+      --text: rgba(255, 255, 255, .92);
+      --muted: rgba(255, 255, 255, .62);
 
-    .card {
-      background: #fff;
-      border: 1px solid #e6e8ef;
-      border-radius: 12px;
-      padding: 16px;
+      --primary: #6d5cff;
+      --primary2: #22c1ff;
+      --danger: #ff4d6d;
+      --good: #22c55e;
+
+      --shadow: 0 22px 70px rgba(0, 0, 0, .45);
+      --shadow2: 0 10px 30px rgba(0, 0, 0, .35);
+
+      --r: 16px;
+      --r2: 12px;
+      --t: 220ms;
+      --ease: cubic-bezier(.2, .8, .2, 1);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      background:
+        radial-gradient(900px 600px at 20% 10%, rgba(109, 92, 255, .35), transparent 60%),
+        radial-gradient(900px 600px at 80% 0%, rgba(34, 193, 255, .28), transparent 60%),
+        radial-gradient(700px 500px at 60% 90%, rgba(255, 77, 109, .16), transparent 65%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x: hidden;
+    }
+
+    /* Floating blobs */
+    .blob {
+      position: fixed;
+      inset: auto;
+      width: 460px;
+      height: 460px;
+      filter: blur(50px);
+      opacity: .30;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      animation: float 10s var(--ease) infinite alternate;
+      z-index: -1;
+    }
+
+    .b1 {
+      left: -120px;
+      top: -120px;
+      background: radial-gradient(circle at 30% 30%, rgba(109, 92, 255, .95), transparent 60%);
+      animation-duration: 11s;
+    }
+
+    .b2 {
+      right: -160px;
+      top: -120px;
+      background: radial-gradient(circle at 30% 30%, rgba(34, 193, 255, .95), transparent 60%);
+      animation-duration: 13s;
+    }
+
+    .b3 {
+      left: 20%;
+      bottom: -220px;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 77, 109, .85), transparent 60%);
+      animation-duration: 15s;
+    }
+
+    @keyframes float {
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+
+      to {
+        transform: translate3d(40px, -30px, 0) scale(1.06);
+      }
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 28px auto;
+      padding: 0 16px 40px;
+    }
+
+    .hero {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
       margin-bottom: 16px;
     }
 
-    .label { display: block; margin: 8px 0 6px; font-weight: 600; }
-
-    textarea {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid #d8dbe6;
-      resize: vertical;
+    h1 {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 34px);
+      letter-spacing: .3px;
+      line-height: 1.15;
     }
 
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .05));
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(14px);
+      position: relative;
+      overflow: hidden;
+      transform: translateZ(0);
+      animation: cardIn 420ms var(--ease) both;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: radial-gradient(600px 120px at 20% 0%, rgba(255, 255, 255, .12), transparent 60%);
+      pointer-events: none;
+      opacity: .9;
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(.99);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .label {
+      display: block;
+      margin: 8px 0 6px;
+      font-weight: 650;
+      color: rgba(255, 255, 255, .86);
+    }
+
+    textarea,
     input[type="text"] {
       width: 100%;
-      box-sizing: border-box;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid #d8dbe6;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      background: rgba(10, 14, 30, .55);
+      color: var(--text);
+      outline: none;
+      transition: box-shadow var(--t) var(--ease), border-color var(--t) var(--ease), transform var(--t) var(--ease);
+    }
+
+    textarea::placeholder,
+    input::placeholder {
+      color: rgba(255, 255, 255, .45);
+    }
+
+    textarea:focus,
+    input[type="text"]:focus {
+      border-color: rgba(34, 193, 255, .55);
+      box-shadow:
+        0 0 0 4px rgba(34, 193, 255, .12),
+        0 0 0 1px rgba(109, 92, 255, .25) inset;
+      transform: translateY(-1px);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 110px;
     }
 
     .row {
@@ -47,75 +199,233 @@
       flex-wrap: wrap;
     }
 
-    .space { justify-content: space-between; }
-
-    .btn {
-      border: 0;
-      padding: 10px 14px;
-      border-radius: 10px;
-      background: #2f6fed;
-      color: #fff;
-      cursor: pointer;
+    .space {
+      justify-content: space-between;
     }
 
-    .btn.secondary { background: #e9eefc; color: #2f6fed; }
-    .btn.danger { background: #ef4444; color: #fff; }
+    /* Buttons: lift + shimmer + ripple */
+    .btn {
+      border: 0;
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      color: #07101a;
+      font-weight: 700;
+      letter-spacing: .2px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(109, 92, 255, .28);
+      transition: transform var(--t) var(--ease), box-shadow var(--t) var(--ease), filter var(--t) var(--ease);
+      user-select: none;
+    }
 
-    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 36px rgba(109, 92, 255, .36);
+      filter: saturate(1.06);
+    }
 
-    .muted { color: #6b7280; font-size: 14px; }
+    .btn:active {
+      transform: translateY(0);
+    }
 
-    .list { display: grid; gap: 12px; }
+    .btn::after {
+      content: "";
+      position: absolute;
+      inset: -60% -30%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .36), transparent);
+      transform: translateX(-55%) rotate(18deg);
+      opacity: .0;
+    }
+
+    .btn:hover::after {
+      opacity: 1;
+      animation: shimmer 1.2s var(--ease) infinite;
+    }
+
+    @keyframes shimmer {
+      from {
+        transform: translateX(-60%) rotate(18deg);
+      }
+
+      to {
+        transform: translateX(65%) rotate(18deg);
+      }
+    }
+
+    .btn.secondary {
+      background: rgba(255, 255, 255, .08);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, .16);
+      box-shadow: none;
+    }
+
+    .btn.secondary:hover {
+      box-shadow: 0 14px 30px rgba(0, 0, 0, .25);
+      border-color: rgba(255, 255, 255, .24);
+    }
+
+    .btn.danger {
+      background: linear-gradient(135deg, var(--danger), #ff8fab);
+      color: #13060a;
+      box-shadow: 0 12px 30px rgba(255, 77, 109, .20);
+    }
+
+    .btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none !important;
+      filter: none;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .pill {
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .14);
+      color: rgba(255, 255, 255, .84);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .18);
+      transition: transform var(--t) var(--ease);
+    }
+
+    .pill.bump {
+      animation: bump 420ms var(--ease);
+    }
+
+    @keyframes bump {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
 
     .item {
-      border: 1px solid #e6e8ef;
-      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: var(--r);
       padding: 12px;
-      background: #fff;
+      background: rgba(255, 255, 255, .06);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, .22);
+      backdrop-filter: blur(12px);
+      transform: translateZ(0);
+      transition: transform var(--t) var(--ease), border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+      animation: itemIn 360ms var(--ease) both;
+    }
+
+    @keyframes itemIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .item:hover {
+      transform: translateY(-2px);
+      border-color: rgba(34, 193, 255, .28);
+      box-shadow: 0 22px 70px rgba(0, 0, 0, .30);
+    }
+
+    .meta {
+      font-size: 12px;
+      color: rgba(255, 255, 255, .55);
     }
 
     .code {
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      padding: 8px;
-      border-radius: 10px;
+      margin-top: 8px;
+      background: rgba(10, 14, 30, .55);
+      border: 1px solid rgba(255, 255, 255, .12);
+      padding: 10px;
+      border-radius: 12px;
       white-space: pre-wrap;
+      color: rgba(255, 255, 255, .88);
     }
-
-    .meta { font-size: 12px; color: #6b7280; }
 
     .actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
-    .pill {
-      font-size: 12px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      color: #374151;
+    /* Filter UI */
+    .filterWrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
     }
 
-    .filterWrap { display: flex; align-items: center; gap: 10px; }
     .filterAffix {
       padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #d8dbe6;
-      background: #f3f4f6;
-      color: #374151;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      background: rgba(255, 255, 255, .06);
+      color: rgba(255, 255, 255, .82);
       white-space: nowrap;
+      backdrop-filter: blur(8px);
     }
+
     #filterNumber { flex: 1; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      min-width: min(560px, calc(100vw - 24px));
+      background: rgba(255, 255, 255, .09);
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 14px;
+      padding: 10px 12px;
+      color: rgba(255, 255, 255, .88);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      animation: toastIn 220ms var(--ease) both;
+    }
+
+    @keyframes toastIn {
+      from { transform: translateX(-50%) translateY(10px) scale(.98); }
+      to { transform: translateX(-50%) translateY(0) scale(1); }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+      .blob { display: none; }
+    }
   </style>
 </head>
 
 <body>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
   <main class="wrap">
-    <h1>Lưu Mã Thẻ Sự Kiện Liên Quân</h1>
+    <div class="hero">
+      <div>
+        <h1>Lưu Mã Thẻ Sự Kiện Liên Quân</h1>
+        <div class="subtitle">UI đã nâng cấp hiệu ứng • Copy chỉ lấy mã DICHUA • Lọc theo số thẻ</div>
+      </div>
+      <span id="countPill" class="pill">0 mục</span>
+    </div>
 
     <!-- ADD -->
     <section class="card">
@@ -125,6 +435,7 @@
       <div class="row">
         <button id="saveBtn" class="btn" type="button">Lưu</button>
         <button id="copyInputBtn" class="btn secondary" type="button">Copy text đang nhập</button>
+        <button id="reloadBtn" class="btn secondary" type="button">Tải lại</button>
         <span id="status" class="muted"></span>
       </div>
       <div class="muted">* Server sẽ tự check trùng (không phân biệt hoa thường, gộp khoảng trắng).</div>
@@ -132,30 +443,24 @@
 
     <!-- LIST + FILTER -->
     <section class="card">
-      <div class="row space">
+      <div class="row space" style="margin-top:0">
         <h2>Danh sách đã lưu</h2>
-        <div class="row" style="margin-top:0">
-          <span id="countPill" class="pill">0 mục</span>
-          <button id="reloadBtn" class="btn secondary" type="button">Tải lại</button>
-        </div>
+        <span id="filterInfo" class="muted"></span>
       </div>
 
       <label class="label">Lọc theo từ khóa</label>
-
       <div class="filterWrap">
         <span class="filterAffix">Thẻ</span>
         <input id="filterNumber" type="text" inputmode="numeric" placeholder="Nhập số (VD: 63)" autocomplete="off" />
         <span class="filterAffix">nhé!</span>
-      </div>
-
-      <div class="row">
         <button id="clearFilterBtn" class="btn secondary" type="button">Xóa lọc</button>
-        <span id="filterInfo" class="muted"></span>
       </div>
 
       <div id="list" class="list muted">Đang tải...</div>
     </section>
   </main>
+
+  <div id="toast" class="toast"></div>
 
   <script>
     const $ = (s) => document.querySelector(s);
@@ -172,6 +477,8 @@
     const clearFilterBtn = $("#clearFilterBtn");
     const filterInfo = $("#filterInfo");
     const countPill = $("#countPill");
+
+    const toast = $("#toast");
 
     let allItems = [];
 
@@ -190,8 +497,18 @@
       }
     }
 
+    // Toast + status (animated)
+    let toastTimer = null;
+    function showToast(msg, ms = 1400) {
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), ms);
+    }
+
     function flash(msg, ms = 1500) {
       statusEl.textContent = msg;
+      showToast(msg, ms);
       if (ms) setTimeout(() => (statusEl.textContent = ""), ms);
     }
 
@@ -204,7 +521,7 @@
         .replaceAll("'", "&#039;");
     }
 
-    // ✅ Lấy số nằm giữa dấu cách thứ 7 và 8 (token thứ 8)
+    // ✅ Rule: lấy số nằm giữa dấu cách thứ 7 và 8 (token thứ 8)
     function normalizeForSplit(input) {
       return String(input || "").trim().replace(/\s+/g, " ");
     }
@@ -224,6 +541,13 @@
     function extractDichuaCode(text) {
       const m = String(text || "").match(/\bDICHUA_[A-Za-z0-9]+\b/);
       return m ? m[0] : "";
+    }
+
+    function bumpPill() {
+      countPill.classList.remove("bump");
+      // reflow trick
+      void countPill.offsetWidth;
+      countPill.classList.add("bump");
     }
 
     function applyFilter() {
@@ -246,6 +570,7 @@
 
     function render(items) {
       countPill.textContent = `${items.length} mục`;
+      bumpPill();
 
       if (!items.length) {
         listEl.classList.add("muted");
@@ -273,15 +598,12 @@
       listEl.querySelectorAll("[data-copy]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const v = btn.getAttribute("data-copy") || "";
-          if (!v) {
-            const old = btn.textContent;
-            btn.textContent = "Không có mã";
-            setTimeout(() => (btn.textContent = old), 1200);
-            return;
-          }
+          if (!v) return showToast("Không có mã DICHUA trong dòng này", 1300);
+
           const ok = await copyToClipboard(v);
           const old = btn.textContent;
           btn.textContent = ok ? "Đã copy!" : "Copy lỗi";
+          showToast(ok ? `Đã copy: ${v}` : "Copy lỗi", 1400);
           setTimeout(() => (btn.textContent = old), 1200);
         });
       });
